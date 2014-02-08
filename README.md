@@ -38,6 +38,17 @@ Create a user without passwd:
 
 Insert the thow lines in /etc/ssh/sshd\_config:
 
-  AuthorizedKeysCommand /usr/local/bin/check\_authorizedkeys
+  AuthorizedKeysCommand /usr/bin/check\_authorizedkeys
   AuthorizedKeysCommandUser sshkey
 
+Most of the times, *.ssh* doesn't allow other user to access files inside. That
+makes sense. But you need to allow other users to access readonly authorized
+files inside (in our case, the file authorized\_keys.keeper). The following
+command will allow the user *sshkey* to go throught the .ssh directory:
+
+  nicolas@typed.io$ chmod +x ~nicolas/.ssh
+
+Initialize the database
+-----------------------
+
+  nicolas@typed.io$ keeperdb init
