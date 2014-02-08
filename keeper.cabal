@@ -1,0 +1,66 @@
+name:                keeper
+
+-- The package version.  See the Haskell package versioning policy (PVP)
+-- for standards guiding when and how versions should be incremented.
+-- http://www.haskell.org/haskellwiki/Package_versioning_policy
+-- PVP summary:      +------- breaking API changes
+--                   | +----- non-breaking API additions
+--                   | | +--- code changes with no API change
+version:             0.1.0
+-- A short (one-line) description of the package.
+-- synopsis:
+-- A longer description of the package.
+-- description:
+homepage:            keeper.typed.io
+license:             BSD3
+license-file:        LICENSE
+author:              Nicolas DI PRIMA
+maintainer:          nicolas@di-prima.fr
+category:            System
+build-type:          Simple
+cabal-version:       >=1.10
+
+Flag executable
+  Description:       Build the executable
+  Default:           False
+
+library
+  -- Modules exported by the library.
+  exposed-modules:     System.Keeper
+                     , System.Keeper.Model
+                     , System.Keeper.Database
+
+  -- Modules included in this library but not exported.
+  -- other-modules:
+
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:
+
+  -- Other library packages from which modules are imported.
+  build-depends:       base >=4.6 && <4.7
+                     , text
+                     , bytestring
+                     , persistent
+                     , persistent-template
+                     , persistent-sqlite
+                     , esqueleto
+
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
+
+Executable           keeperdb
+  Main-Is:           KeeperDB.hs
+  hs-source-dirs:    Keeper
+  ghc-options:       -Wall -fno-warn-orphans -fno-warn-missing-signatures
+  if flag(executable)
+    Build-depends:   base >= 4 && < 5
+                   , bytestring
+                   , unix
+                   , persistent
+                   , keeper
+                   , optparse-applicative
+    Buildable: True
+  else
+    Buildable: False
+  default-language:    Haskell2010
+
