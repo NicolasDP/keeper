@@ -4,7 +4,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
 -- |
--- Module      : System.Keeper.Database
+-- Module      : System.Keeper.Model
 -- License     : BSD-style
 -- Maintainer  : Nicolas DI PRIMA <nicolas@di-prima.fr>
 -- Stability   : experimental
@@ -24,16 +24,7 @@ import Database.Persist.Sqlite
 import Database.Persist.TH
 import Data.Typeable (Typeable)
 
--- | The common entity
---
--- This represents an user's key.
---
--- The value 'pubKey' must be the content of the plublic key (rsa.pub).
---
--- The 'name' is an user alias you can use to named this key.
---
--- The 'command' is the command to execute if the user try a connection. If
--- Nothing, then the original command will be execute.
+-- | The bunker's database model
 share [mkPersist sqlSettings, mkMigrate "migrateTables"]
       [persistLowerCase|
 KeeperKey
@@ -55,11 +46,12 @@ KeeperKey
     deriving Show Typeable
 |]
 
+-- | the default way to access the database
 runDB base f =
     runSqlite (T.pack ((BS.unpack base) ++ "/.ssh/authorized_keys.keeper")) f
 
 -- | create a new bunker database (or update the existing one) with the given
 -- name
 --
--- > createHitTable "/nicolas/nicolas"
+-- > createKeeperTable "/nicolas/nicolas"
 createKeeperTable base = runDB base $ runMigration migrateTables

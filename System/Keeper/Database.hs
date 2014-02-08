@@ -13,7 +13,7 @@
 -- Bunker's database common interface.
 --
 -- The idea is to create a database per login. So you can manage different
--- authorized keys for different user.
+-- authorized keys for different users.
 --
 module System.Keeper.Database
     ( -- * Usual functions
@@ -34,11 +34,12 @@ import qualified Database.Esqueleto as E
 
 import System.Keeper.Model
 
--- | Insert a new user in the given base
--- The following command insert a new key for user *vincent* in the base *nicolas* and
--- ask ssh-daemon to execute the command *bunker_checkruserright vincent*
+-- | Insert a new key in the base, associated it a name (an alias)
 --
--- > insertHitUser "nicolas" <vincent's key> "vincent" "bunker_checkuserright vincent"
+-- > insertKeeperKey "/home/git" "nicolas" <mykeys> False
+-- >                             Nothing Nothing Nothing
+-- >                             False False False False False
+-- >                             Nothing Nothing Nothing
 insertKeeperKey base name key ca cmd env from naf npf npty nurc nx11 po pri tunnel =
     runDB base $
         insertBy $
@@ -49,24 +50,25 @@ insertKeeperKey base name key ca cmd env from naf npf npty nurc nx11 po pri tunn
 
 -- | Get the list of authorized keys for the given base
 --
--- > selectAuthorizedKeys "nicolas"
+-- > selectAuthorizedKeys "/home/git"
 selectAuthorizedKeys base =
     runDB base $ selectList [] []
 
--- | Get the list of authorized keys for the given base
+-- | Get the list of authorized keys for the given base associated to a given
+-- name.
 --
--- > selectAuthorizedKeys "nicolas"
+-- > selectAuthorizedKeys "/home/git" "nicolas"
 selectAuthorizedKeysOf base name =
     runDB base $ selectList [KeeperKeyName ==. name] []
 
--- | delete all user's keys in the given base
+-- | delete all keys associated to a given name in the given base
 --
--- > deleteHitUser "nicolas" "vincent"
+-- > deleteKeeperKeys "/home/git" "nicolas"
 deleteKeeperKeys base name =
     runDB base $ deleteWhere $ [KeeperKeyName ==. name]
 
--- | delete a user's key
+-- | delete a specific key
 --
--- > deleteHitUserKey "nicolas" (PersistInt64 19)
+-- > deleteKeeperKey "/home/git" ((Key $ toPersistValue 3))
 deleteKeeperKey base kId =
     runDB base $ deleteWhere $ [KeeperKeyId ==. kId]
