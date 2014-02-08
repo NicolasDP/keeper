@@ -74,6 +74,7 @@ Executable           check_authorizedkeys
                    , hslogger
                    , system-filepath
                    , unix
+                   , split
                    , persistent
                    , keeper
     Buildable: True

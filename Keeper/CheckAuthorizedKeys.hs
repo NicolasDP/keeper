@@ -5,12 +5,27 @@ import Database.Persist
 import Data.ByteString.Char8 as BS
 
 import System.Posix.Env.ByteString
+import qualified Data.String (lines)
+import qualified Data.List.Split as S (splitOn)
 
 import System.Log.Logger
 import System.Log.Handler.Syslog
 
+getHomePath dbname = do
+    let userName = unpack dbname
+    fileContent <- Prelude.readFile "/etc/passwd"
+    let contentLines = Data.String.lines fileContent
+    let result = Prelude.drop 5 $ getUser userName $ Prelude.map (S.splitOn ":") contentLines
+    if Prelude.null result then error $ "no database for user: " ++ userName
+                           else return $ pack $ Prelude.head result
+    where
+        getUser _ [] = []
+        getUser n [(user:xs)] = if user == n then (user:xs) else []
+        getUser n ((user:xs):xss) = if user == n then (user:xs) else getUser n xss
+        getUser n (_:xss) = getUser n xss
+
 showKeysFrom dbname = do
-    listRes <- selectAuthorizedKeys (BS.concat ["/home/",dbname])
+    listRes <- selectAuthorizedKeys dbname
     Prelude.mapM_ showKeyOf listRes
     where
         showKeyOf ent =
@@ -27,5 +42,6 @@ main = do
     args <- getArgs
     case args of
         [dbname] -> do warningM "check pubkey" ("#" ++ (unpack dbname))
-                       showKeysFrom dbname
+                       home <- getHomePath dbname
+                       showKeysFrom home
         _        -> errorM "Bad command line" (show args)
