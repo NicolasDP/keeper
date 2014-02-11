@@ -24,8 +24,8 @@ Installation
 Keeper
 ------
 
-  nicolas@typed.io$ cabal configure -f executable
-  nicolas@typed.io$ cabal build
+    nicolas@typed.io$ cabal configure -f executable
+    nicolas@typed.io$ cabal build
 
   TODO: install the binaries in /usr/bin
 
@@ -34,21 +34,16 @@ Configure OpenSSH
 
 Create a user without passwd:
 
-  nicolas@typed.io# sudo useradd -s /usr/sbin/nologin sshkey
+    nicolas@typed.io# sudo useradd -s /usr/sbin/nologin sshkey
 
 Insert the thow lines in /etc/ssh/sshd\_config:
 
-  AuthorizedKeysCommand /usr/bin/check\_authorizedkeys
-  AuthorizedKeysCommandUser sshkey
+    AuthorizedKeysCommand /usr/bin/check\_authorizedkeys
+    AuthorizedKeysCommandUser sshkey
 
 Most of the times, *.ssh* doesn't allow other user to access files inside. That
 makes sense. But you need to allow other users to access readonly authorized
 files inside (in our case, the file authorized\_keys.keeper). The following
 command will allow the user *sshkey* to go throught the .ssh directory:
 
-  nicolas@typed.io$ chmod +x ~nicolas/.ssh
-
-Initialize the database
------------------------
-
-  nicolas@typed.io$ keeperdb init
+    nicolas@typed.io$ chmod +x ~nicolas/.ssh
