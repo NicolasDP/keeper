@@ -1,47 +1,78 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-}
 import System.Keeper
-import Database.Persist
 
-import Data.ByteString.Char8 as BS
+import Data.Aeson
+import Control.Applicative
+import Control.Monad
+import Data.List.Split as S (splitOn)
 
-import System.Posix.Env.ByteString
-import qualified Data.String (lines)
-import qualified Data.List.Split as S (splitOn)
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy  as BL
 
-import System.Log.Logger
-import System.Log.Handler.Syslog
+instance FromJSON KKEntity where
+    parseJSON (Object v) =
+        KKEntity <$> v .:  "name"
+                 <*> v .:  "pubKey"
+                 <*> v .:? "certAuthority"
+                 <*> v .:? "command"
+                 <*> v .:? "environment"
+                 <*> v .:? "from"
+                 <*> v .:? "noAgentForwarding"
+                 <*> v .:? "noPortForwarding"
+                 <*> v .:? "noPTY"
+                 <*> v .:? "noUserRC"
+                 <*> v .:? "noX11Forwarding"
+                 <*> v .:? "permitOpen"
+                 <*> v .:? "principals"
+                 <*> v .:? "tunnel"
+    parseJSON _ = mzero
 
-getHomePath dbname = do
-    let userName = unpack dbname
+instance ToJSON KKEntity where
+    toJSON (k) =
+        object [ "name" .= (show $ name k)
+               , "pubKey" .= (show $ pubKey k)
+               , "certAuthority" .= (certAuthority k)
+               , "command" .= (show $ command k)
+               , "environment" .= (show $ environment k)
+               , "from" .= (show $ from k)
+               , "noAgentForwarding" .= (noAgentForwarding k)
+               , "noPortForwarding" .= (noPortForwarding k)
+               , "noPTY" .= (noPTY k)
+               , "noUserRC" .= (noUserRC k)
+               , "noX11Forwarding" .= (noX11Forwarding k)
+               , "permitOpen" .= (show $ permitOpen k)
+               , "principals" .= (show $ principals k)
+               , "tunnel" .= (show $ tunnel k)
+                 ]
+
+getHomePath :: String -> IO String
+getHomePath username = do
     fileContent <- Prelude.readFile "/etc/passwd"
-    let contentLines = Data.String.lines fileContent
-    let result = Prelude.drop 5 $ getUser userName $ Prelude.map (S.splitOn ":") contentLines
-    if Prelude.null result then error $ "no database for user: " ++ userName
-                           else return $ pack $ Prelude.head result
+    let contentLines = lines fileContent
+    let result = Prelude.drop 5 $ getUser username $ Prelude.map (S.splitOn ":") contentLines
+    if Prelude.null result then error $ "no database for user: " ++ username
+                           else return $ Prelude.head result
     where
         getUser _ [] = []
         getUser n [(user:xs)] = if user == n then (user:xs) else []
         getUser n ((user:xs):xss) = if user == n then (user:xs) else getUser n xss
         getUser n (_:xss) = getUser n xss
 
-showKeysFrom dbname = do
-    listRes <- selectAuthorizedKeys dbname
-    Prelude.mapM_ showKeyOf listRes
-    where
-        showKeyOf ent =
-            let val = entityVal ent
-                cmd = case keeperKeyCommand val of
-                          Nothing -> BS.empty
-                          Just command -> BS.concat [" command=\"",command,"\""]
-            in  do warningM (BS.unpack dbname) ("#name(" ++ (BS.unpack $ keeperKeyName val) ++ ")")
-                   BS.putStrLn $ BS.concat [keeperKeyPubKey val,cmd]
+instance Keeper [KKEntity] where
+    getAuthorizedKeys c f = mapM_ f c
 
-main = do
-    s <- openlog "CheckAuthorizedKey" [PID] USER WARNING
-    updateGlobalLogger rootLoggerName (addHandler s)
-    args <- getArgs
-    case args of
-        [dbname] -> do warningM "check pubkey" ("#" ++ (unpack dbname))
-                       home <- getHomePath dbname
-                       showKeysFrom home
-        _        -> errorM "Bad command line" (show args)
+getJSON :: String -> IO BL.ByteString
+getJSON fpath = BL.readFile fpath
+
+getDB :: UserName -> IO [KKEntity]
+getDB (UserName userName) = do
+    homePath <- getHomePath (BS.unpack userName)
+    content <- getJSON $ homePath ++ "/.ssh/authorized_keys.keeper"
+    let d = eitherDecode content :: Either String [KKEntity]
+    case d of
+        Left err -> error err
+        Right xs -> return xs
+
+--main = BL.writeFile "test.txt" $ encode defaultKKEntity
+main = defaultMain getDB

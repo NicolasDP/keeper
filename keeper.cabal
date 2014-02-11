@@ -20,15 +20,11 @@ category:            System
 build-type:          Simple
 cabal-version:       >=1.10
 
-Flag executable
-  Description:       Build the executable
-  Default:           False
-
 library
   -- Modules exported by the library.
   exposed-modules:     System.Keeper
-                     , System.Keeper.Model
-                     , System.Keeper.Database
+                     , System.Keeper.Types
+                     , System.Keeper.Class
 
   -- Modules included in this library but not exported.
   -- other-modules:
@@ -38,47 +34,24 @@ library
 
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7
-                     , text
+                     , unix
+                     , byteable
                      , bytestring
-                     , persistent
-                     , persistent-template
-                     , persistent-sqlite
-                     , esqueleto
 
   -- Base language which the package is written in.
-  default-language:    Haskell2010
-
-Executable           keeperdb
-  Main-Is:           KeeperDB.hs
-  hs-source-dirs:    Keeper
-  ghc-options:       -Wall -fno-warn-orphans -fno-warn-missing-signatures
-  if flag(executable)
-    Build-depends:   base >= 4 && < 5
-                   , bytestring
-                   , unix
-                   , persistent
-                   , keeper
-                   , optparse-applicative
-    Buildable: True
-  else
-    Buildable: False
   default-language:    Haskell2010
 
 Executable           check_authorizedkeys
   Main-Is:           CheckAuthorizedKeys.hs
   hs-source-dirs:    Keeper
   ghc-options:       -Wall -fno-warn-orphans -fno-warn-missing-signatures
-  if flag(executable)
-    Build-depends:   base >= 4 && < 5
-                   , bytestring
-                   , hslogger
-                   , system-filepath
-                   , unix
-                   , split
-                   , persistent
-                   , keeper
-    Buildable: True
-  else
-    Buildable: False
+  Build-depends:   base >= 4 && < 5
+                 , bytestring
+                 , system-filepath
+                 , unix
+                 , split
+                 , aeson
+                 , text
+                 , transformers
+                 , keeper
   default-language:    Haskell2010
-
