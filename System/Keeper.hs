@@ -49,6 +49,6 @@ defaultMain getBackend = do
                         permi = maybe (nox11) (\c -> (BS.concat ["permitopen=\"",c,"\""]):nox11) $ permitOpen k
                         princ = maybe (permi) (\c -> (BS.concat ["principals=\"",c,"\""]):permi) $ principals k
                         tunne = maybe (princ) (\c -> (BS.concat ["tunnels=\""   ,c,"\""]):princ) $ tunnel k
-                        options = BS.concat $ (intersperse "," tunne) ++ (if Prelude.length tunne > 0 then [" "] else [])
-                        outPutKey = BS.concat [options,pubKey k, " # ",name k]
+                        options = BS.intercalate "," tunne
+                        outPutKey = BS.concat [pubKey k," ",options, " # ",name k]
                     in BS.putStrLn outPutKey
