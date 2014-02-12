@@ -3,12 +3,20 @@
 import System.Keeper
 
 import Data.Aeson
+import Data.Aeson.Types
+
 import Control.Applicative
 import Control.Monad
 import Data.List.Split as S (splitOn)
 
+import Data.Text.Encoding (encodeUtf8)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy  as BL
+
+instance FromJSON BS.ByteString where
+    parseJSON (String t) = pure . encodeUtf8 $ t
+    parseJSON v          = typeMismatch "ByteString" v
+    {-# INLINE parseJSON #-}
 
 instance FromJSON KKEntity where
     parseJSON (Object v) =
