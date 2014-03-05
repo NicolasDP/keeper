@@ -1,6 +1,8 @@
-module System.Keeper.Class where
+module System.Keeper.Class
+    ( Keeper(..)
+    ) where
 
 import System.Keeper.Types
 
 class Keeper c where
-    getAuthorizedKeys :: c -> (KKEntity -> IO a) -> IO ()
+    getAuthorizedKeys :: (KKEntity -> a -> a) -> a -> c -> a

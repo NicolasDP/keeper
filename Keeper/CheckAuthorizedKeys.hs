@@ -68,7 +68,7 @@ getHomePath username = do
         getUser n (_:xss) = getUser n xss
 
 instance Keeper [KKEntity] where
-    getAuthorizedKeys c f = mapM_ f c
+    getAuthorizedKeys = foldr
 
 getJSON :: String -> IO BL.ByteString
 getJSON fpath = BL.readFile fpath
