@@ -41,9 +41,14 @@ Insert the thow lines in /etc/ssh/sshd\_config:
     AuthorizedKeysCommand /usr/bin/check\_authorizedkeys
     AuthorizedKeysCommandUser sshkey
 
-Most of the times, *.ssh* doesn't allow other user to access files inside. That
-makes sense. But you need to allow other users to access readonly authorized
-files inside (in our case, the file authorized\_keys.keeper). The following
-command will allow the user *sshkey* to go throught the .ssh directory:
+Flat version
+------------
+
+The actual version of Keeper implement a json file database. This database is
+expected to be in the user's *.ssh* directory. A quick action to ensure
+everything work could be to change the access right:
 
     nicolas@typed.io$ chmod +x ~nicolas/.ssh
+
+A better way could be to change the group right and allow the user "sshkey" to
+access this directory.
