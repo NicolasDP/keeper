@@ -1,12 +1,23 @@
+------------------------------------------------------------------------------
+-- |
+-- Module      : System.Keeper.Types
+-- License     : BSD-style
+-- Maintainer  : Nicolas DI PRIMA <nicolas@di-prima.fr>
+-- Stability   : experimental
+-- Portability : unix
+--
 module System.Keeper.Types
     ( KKEntity(..)
     , defaultKKEntity
     , UserName(..)
     ) where
 
+------------------------------------------------------------------------------
+
 import Data.ByteString as BS (ByteString, empty)
 import Data.Byteable
 
+------------------------------------------------------------------------------
 -- | Keeper Key Entity:
 -- it represents an AUTHORIZED_KEY. It implements the FORMAT given in the
 -- SSHD_CONFIG manual.
@@ -27,6 +38,7 @@ data KKEntity = KKEntity
     , tunnel            :: Maybe ByteString -- ^ tunnel="n"
     } deriving (Show, Read, Eq)
 
+------------------------------------------------------------------------------
 -- | returns a default KKEntity
 defaultKKEntity :: KKEntity
 defaultKKEntity = KKEntity
@@ -46,8 +58,9 @@ defaultKKEntity = KKEntity
     , tunnel            = Nothing
     }
 
+------------------------------------------------------------------------------
+-- | User name
 newtype UserName = UserName ByteString
     deriving (Show, Read, Eq, Ord)
-
 instance Byteable UserName where
     toBytes (UserName b) = b

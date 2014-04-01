@@ -27,11 +27,15 @@ library
   exposed-modules:     System.Keeper
                      , System.Keeper.Types
                      , System.Keeper.Class
+                     , System.Keeper.Backend.Dummy
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7
                      , unix
                      , byteable
                      , bytestring
+                     , text
+                     , split
+                     , aeson
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
@@ -44,9 +48,6 @@ Executable           check_authorizedkeys
                  , bytestring
                  , system-filepath
                  , unix
-                 , split
-                 , aeson
-                 , text
                  , transformers
                  , keeper
   default-language:    Haskell2010

@@ -1,15 +1,19 @@
+------------------------------------------------------------------------------
 -- |
--- Module      : System.GitControl
+-- Module      : System.Keeper
 -- License     : BSD-style
+-- Maintainer  : Nicolas DI PRIMA <nicolas@di-prima.fr>
 -- Stability   : experimental
 -- Portability : unix
 --
 {-# LANGUAGE OverloadedStrings #-}
 module System.Keeper
     ( defaultMain
-    , module System.Keeper.Class
     , module System.Keeper.Types
+    , module System.Keeper.Class
     ) where
+
+------------------------------------------------------------------------------
 
 import System.Posix.Env.ByteString
 import System.Posix.Process.ByteString
@@ -23,8 +27,10 @@ import qualified Data.ByteString.Char8 as BS
 import Data.List (intersperse)
 import Data.Byteable
 
+------------------------------------------------------------------------------
+-- | a proposed default main function to use for OpenSSH server
 defaultMain :: Keeper a
-            => (UserName -> IO a) -- ^ initialize the keeper backend
+            => (UserName -> IO a) -- ^ initialize/get the keeper backend
             -> IO ()
 defaultMain getBackend = do
     args <- getArgs
